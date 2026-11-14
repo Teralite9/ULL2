@@ -88,7 +88,7 @@ footer{border-top:1px solid #ffffff12;padding:25px 0;color:var(--muted);font-siz
   <div class="panel"><h3>Gestionar niveles</h3><div id="manage-levels"></div></div>
 </section>
 </main>
-<footer><div class="wrap">UNIVERSAL LEVEL LIST · ULL · Proyecto comunitario no oficial de Geometry Dash.</div></footer>
+<footer><div class="wrap">UNIVERSAL LEVEL LIST · ULL </div></footer>
 
 <script>
 // ULL · Supabase configuration
@@ -98,9 +98,9 @@ const SUPABASE_URL = 'https://wfygvnutodshsvhqruii.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_m6ioKI9glT_IqYGQJh9D-w_MDUBAreT';
 
 const configured = SUPABASE_URL.startsWith('https://')
-  && !SUPABASE_URL.includes('PEGA_AQUI')
+  && !SUPABASE_URL.includes('https://wfygvnutodshsvhqruii.supabase.co/rest/v1/')
   && SUPABASE_ANON_KEY.length > 20
-  && !SUPABASE_ANON_KEY.includes('PEGA_AQUI');
+  && !SUPABASE_ANON_KEY.includes('sb_publishable_m6ioKI9glT_IqYGQJh9D-w_MDUBAreT');
 
 let supabase = null;
 let createSupabaseClient = null;
@@ -128,14 +128,12 @@ document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>p
 $('search').addEventListener('input',renderLevels);
 $('back-ranking').addEventListener('click',()=>page('home'));
 
-async function https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2
-https://unpkg.com/@supabase/supabase-js@2
-  // Load the official UMD browser bundle. It exposes window.supabase.createClient.
-  // Try jsDelivr first, then unpkg as a fallback.
-  const sources = [
-    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
-    'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+async function loadSupabaseLibrary(){
+    const sources = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+    'https://unpkg.com/@supabase/supabase-js@2'
   ];
+
 
   for (const src of sources) {
     try {
