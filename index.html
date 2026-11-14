@@ -47,7 +47,38 @@ $('reset-password').addEventListener('click',async()=>{const email=$('auth-email
 $('sign-out').addEventListener('click',async()=>{try{const {error}=await supabase.auth.signOut();if(error)throw error;currentUser=null;currentProfile=null;renderAccount();await loadData();showPage('home')}catch(error){alert('No se pudo cerrar sesión: '+friendlyError(error))}});
 $('save-profile').addEventListener('click',async()=>{if(!currentUser)return;const name=$('profile-name').value.trim();if(!name)return alert('Escribe un nombre público.');try{const {error}=await supabase.from('profiles').update({display_name:name}).eq('id',currentUser.id);if(error)throw error;await loadProfile();renderAccount();alert('Perfil guardado.')}catch(error){alert('No se pudo guardar el perfil: '+friendlyError(error))}});
 $('submit-form').addEventListener('submit',async event=>{event.preventDefault();if(!currentUser){alert('Inicia sesión antes de enviar un record.');showPage('account');return}const form=new FormData(event.currentTarget),levelId=form.get('level'),percentage=Number(form.get('percent')),hz=Number(form.get('hz'));if(!levels.some(level=>String(level.id)===String(levelId)))return alert('Selecciona un nivel válido.');if(!Number.isFinite(percentage)||percentage<1||percentage>100)return alert('Introduce un porcentaje entre 1 y 100.');if(!Number.isFinite(hz)||hz<=0)return alert('Introduce una frecuencia válida en Hz.');const payload={level_id:levelId,user_id:currentUser.id,percentage,hz,device:form.get('device'),video_url:String(form.get('video')||'').trim()||null,notes:String(form.get('notes')||'').trim()||null,status:'pending'};try{const {error}=await supabase.from('records').insert(payload);if(error)throw error;event.currentTarget.reset();alert('Record enviado. Queda pendiente de aprobación del administrador.')}catch(error){alert('No se pudo enviar el record: '+friendlyError(error))}});
-$('level-form').addEventListener('submit',async event=>{event.preventDefault();if(currentProfile?.role!=='admin')return alert('No tienes permisos de administrador.');const form=new FormData(event.currentTarget),position=Number(form.get('position'))||levels.length+1,payload={name:String(form.get('name')).trim(),creator:String(form.get('creator')).trim()||null,verifier:String(form.get('verifier')).trim()||null,difficulty:form.get('difficulty'),position,thumbnail_url:String(form.get('thumbnail')).trim()||null,verification_video_url:String(form.get('verification')).trim()||null};try{const {error}=await supabase.from('levels').insert(payload);if(error)throw error;event.currentTarget.reset();await loadData();await renderAdmin();alert('Nivel añadido al ranking.')}catch(error){alert('No se pudo añadir el nivel: '+friendlyError(error))}});
+  $('level-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const levelForm = event.currentTarget;
+
+  if (currentProfile?.role !== 'admin') {
+    return alert('No tienes permisos de administrador.');
+  }
+
+  const form = new FormData(levelForm);
+  const position = Number(form.get('position')) || levels.length + 1;
+  const payload = {
+    name: String(form.get('name')).trim(),
+    creator: String(form.get('creator')).trim() || null,
+    verifier: String(form.get('verifier')).trim() || null,
+    difficulty: form.get('difficulty'),
+    position,
+    thumbnail_url: String(form.get('thumbnail')).trim() || null,
+    verification_video_url: String(form.get('verification')).trim() || null
+  };
+
+  try {
+    const { error } = await supabase.from('levels').insert(payload);
+    if (error) throw error;
+
+    levelForm.reset();
+    await loadData();
+    await renderAdmin();
+    alert('Nivel añadido al ranking.');
+  } catch (error) {
+    alert('No se pudo añadir el nivel: ' + friendlyError(error));
+  }
+});
 async function init(){const button=document.createElement('div');try{if(!SUPABASE_URL.startsWith('https://')||SUPABASE_URL.includes('PEGA_AQUI')||!SUPABASE_ANON_KEY||SUPABASE_ANON_KEY.includes('PEGA_AQUI'))throw new Error('Falta configurar la URL o la publishable key de Supabase.');const createClient=await loadSupabase();supabase=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);await refreshSession();await loadData();supabase.auth.onAuthStateChange((_event,session)=>{currentUser=session?.user||null;setTimeout(async()=>{try{await loadProfile();renderAccount();await loadData()}catch(error){console.error('Session refresh failed:',error)}},0)})}catch(error){console.error('Application initialization failed:',error);button.className='notice wrap';button.textContent='No se pudo iniciar la aplicación: '+friendlyError(error)+' Comprueba que las tablas de Supabase existan y que sus políticas RLS permitan las operaciones necesarias.';document.querySelector('header').after(button);$('level-count').textContent='No se pudieron cargar los niveles';$('level-grid').innerHTML='<div class="empty">Comprueba la conexión y la configuración de Supabase.</div>'}}
 init();
 </script>
